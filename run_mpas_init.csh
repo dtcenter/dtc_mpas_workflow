@@ -9,16 +9,16 @@
 ##BSUB -W 10
 ##BSUB -R "span[ptile=16]"
 
-##PBS -S /bin/csh
-##PBS -N init
-##PBS -A P48503002
-##PBS -l walltime=8:00   
-##PBS -q main
-##PBS -o init.out
-##PBS -j oe 
-##PBS -l select=4:ncpus=32:mpiprocs=32
-##PBS -k eod 
-##PBS -V 
+#PBS -S /bin/csh
+#PBS -N init
+#PBS -A P48503002
+#PBS -l walltime=8:00   
+#PBS -q main
+#PBS -o init.out
+#PBS -j oe 
+#PBS -l select=2:ncpus=64:mpiprocs=64
+#PBS -k eod 
+#PBS -V 
 
 #
 ##SBATCH -J logs/mpas_init
@@ -57,6 +57,7 @@ module load mkl
 #setenv CMAKE_C_COMPILER mpiicc
 #setenv CMAKE_CXX_COMPILER mpiicpc
 #setenv CMAKE_Fortran_COMPILER mpiifort
+#setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/scratch2/BMC/fv3lam/HWT/code/jasper/miniconda3_RL/lib
 
 set DATE = $DATE   # From driver.csh
 set START_DATE_MPAS = `${TOOL_DIR}/da_advance_time.exe $DATE 0 -w`
@@ -64,7 +65,6 @@ set END_DATE_MPAS   = `${TOOL_DIR}/da_advance_time.exe $DATE $FCST_RANGE -w` # U
 set START_DATE_LBC = `${TOOL_DIR}/da_advance_time.exe $DATE $LBC_FREQ -w`
 echo "Start LBC ${START_DATE_LBC}"
 
-setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/scratch2/BMC/fv3lam/HWT/code/jasper/miniconda3_RL/lib
 # Deal with batch stuff and specifying ensemble member
 if ( $batch_system == LSF ) then
    set mem = $LSB_JOBINDEX
@@ -327,7 +327,7 @@ foreach iter ( 3 4 5 )
    # -----------------------
    # Run MPAS initialization
    # -----------------------
-   mpirun -np 1200 ./init_atmosphere_model
+   mpirun -np 12 ./init_atmosphere_model
 
    # Error check
    if ( $status != 0 ) then

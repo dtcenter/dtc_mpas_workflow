@@ -49,8 +49,8 @@ endif
 # $num_mpas_cells is set in driver.csh
 #---------------------------------------
 # MH Changed for testing --> currently hardcoded, could be changed to envar
-set config_pio_num_iotasks = 30
-set config_pio_stride      = 40
+set config_pio_num_iotasks = 3
+set config_pio_stride      = 4
 
 #---------------------------------------
 
@@ -79,70 +79,60 @@ MPAS_init:
 rm -f ./namelist.init_atmosphere
 cat > ./namelist.init_atmosphere << EOF
 &nhyd_model
-   config_init_case = ${case_number}
-   config_start_time      = '${config_start_time}'
-   config_stop_time       = '${config_stop_time}'
-   config_theta_adv_order = 3
-   config_coef_3rd_order = 0.25
-   config_interface_projection = 'linear_interpolation'
+    config_init_case = ${case_number}
+    config_start_time = '${config_start_time}'
+    config_stop_time = '${config_stop_time}'
+    config_theta_adv_order = 3
+    config_coef_3rd_order = 0.25
+    config_interface_projection = 'linear_interpolation'
 /
-
 &dimensions
-   config_nvertlevels     = $num_mpas_vert_levels
-   config_nsoillevels     = $num_mpas_soil_levels
-   config_nfglevels       = $this_ungrib_vertical_levels
-   config_nfgsoillevels   = $this_ungrib_soil_levels
-   config_nsoilcat        = $num_soilcat
+    config_nvertlevels = $num_mpas_vert_levels
+    config_nsoillevels = $num_mpas_soil_levels
+    config_nfglevels = $this_ungrib_vertical_levels
+    config_nfgsoillevels = $this_ungrib_soil_levels
+    config_gocartlevels = 30
 /
-
 &data_sources
-   config_geog_data_path  = '${WPS_GEOG_DIR}/'
-   config_met_prefix      = '${ungrib_prefx_model}'
-   config_sfc_prefix      = '${ungrib_prefx_sst}'
-   config_fg_interval     = $config_fg_interval
-   config_landuse_data = 'MODIFIED_IGBP_MODIS_NOAH_15s'
-   config_soilcat_data = 'BNU'
-   config_topo_data = 'GMTED2010'
-   config_vegfrac_data = 'MODIS'
-   config_albedo_data = 'MODIS'
-   config_maxsnowalbedo_data = 'MODIS'
-   config_supersample_factor = 12
-   config_30s_supersample_factor = 3
-   config_use_spechumd = false
+    config_geog_data_path = '${WPS_GEOG_DIR}/'
+    config_met_prefix = '${ungrib_prefx_model}'
+    config_sfc_prefix = '${ungrib_prefx_sst}'
+    config_fg_interval = $config_fg_interval
+    config_landuse_data = 'MODIFIED_IGBP_MODIS_NOAH_15s'
+    config_topo_data = 'GMTED2010'
+    config_vegfrac_data = 'MODIS'
+    config_albedo_data = 'MODIS'
+    config_maxsnowalbedo_data = 'MODIS'
+    config_supersample_factor = 12
+    config_30s_supersample_factor = 3
+    config_use_spechumd = .false.
 /
-
 &vertical_grid
-   config_ztop            = 25878.712
-   config_nsmterrain      = 1
-   config_smooth_surfaces = .true.
-   config_dzmin = 0.3
-   config_nsm = 30
-   config_tc_vertical_grid = .true.
-   config_blend_bdy_terrain = ${config_blend_bdy_terrain}
-   config_specified_zeta_levels = '/scratch2/BMC/fv3lam/HWT/CONUS_grid_static/L60.txt'
+    config_ztop = 25878.712
+    config_nsmterrain = 1
+    config_smooth_surfaces = .true.
+    config_dzmin = 0.3
+    config_nsm = 30
+    config_tc_vertical_grid = .true.
+    config_blend_bdy_terrain = ${config_blend_bdy_terrain}
 /
-
 &interpolation_control
     config_extrap_airtemp = '$config_extrap_airtemp'
 /
-
-
 &preproc_stages
-   config_static_interp   = $config_static_interp
-   config_native_gwd_static = $config_static_interp
-   config_vertical_grid   = $config_vertical_grid
-   config_met_interp      = $config_met_interp
-   config_input_sst       = $config_input_sst
-   config_frac_seaice     = $config_frac_seaice
+    config_static_interp = $config_static_interp
+    config_native_gwd_static = $config_static_interp
+    config_vertical_grid = $config_vertical_grid
+    config_met_interp = $config_met_interp
+    config_input_sst = $config_input_sst
+    config_frac_seaice = $config_frac_seaice
 /
-
 &io
-   config_pio_num_iotasks    = $config_pio_num_iotasks
-   config_pio_stride         = $config_pio_stride
+    config_pio_num_iotasks = $config_pio_num_iotasks
+    config_pio_stride = $config_pio_stride
 /
-
 &decomposition
-   config_block_decomp_file_prefix = '${graph_info_prefx}'
+    config_block_decomp_file_prefix = '${graph_info_prefx}'
 /
 EOF
 
@@ -234,7 +224,7 @@ cat > ./namelist.atmosphere << EOF2
    config_bucket_update       = 'none' !'1_00:00:00'
    config_microp_re           = .true.
    config_lsm_scheme          = 'sf_ruc'
-   num_soil_layers            = 9
+   num_soil_layers            = 4
    config_physics_suite       = '${physics_suite}'
    config_convection_scheme   = 'off'
 /

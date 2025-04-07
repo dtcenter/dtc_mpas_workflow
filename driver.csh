@@ -35,7 +35,7 @@
 ##SBATCH -o driver_expt.o%j
 ##SBATCH -N 1
 ##SBATCH -n 1
-###SBATCH -p hera
+##SBATCH -p hera
 ##SBATCH -t 02:00:00 
 ##SBATCH -A fv3lam
 
@@ -46,7 +46,7 @@ setenv run_cmd              "srun" # Command to run MPI executables #"mpirun.lsf
 
 # Total number of processors to use (not the number of nodes)
 setenv NUM_PROCS_MPAS_ATM   256
-setenv NUM_PROCS_MPAS_INIT  48 # 180
+setenv NUM_PROCS_MPAS_INIT  128 # 180
 setenv num_mpas_procs_per_node  12  # Number of processors per node you want to use for MPAS forecasts (not intialization) -- not used for slurm
 
 setenv mpas_init_walltime 120      #Run-time (minutes) for MPAS initialization
@@ -69,6 +69,7 @@ setenv   SCRIPT_DIR           /glade/campaign/ral/jntp/mayfield/dtc_ncar_mpas/wo
 
 # Path to MPAS initialization code
 setenv   MPAS_INIT_CODE_DIR   /glade/campaign/ral/jntp/mayfield/mpas_stoch/merge/MPAS-Model #the stoch_physics code compiled in MPAS 8.2.2 with intel
+#setenv   MPAS_INIT_CODE_DIR   /glade/campaign/ral/jntp/mayfield/dtc_ncar_mpas/MPAS-Model #MPAS 8.2.2 with gnu
 
 # Path to MPAS model code (could be different from initialization code)
 setenv   MPAS_CODE_DIR        $MPAS_INIT_CODE_DIR
@@ -166,9 +167,9 @@ setenv    mpas_static_data_file   ${MPAS_GRID_INFO_DIR}/conus_15km.static.nc    
 # --------------------------------------------------------------------------------------------
 # Vertical grid dimensions, same for both the ensemble and high-res determinsitic forecasts
 # --------------------------------------------------------------------------------------------
-setenv    num_mpas_vert_levels   59      # Number of vertical levels ( mass levels )
-setenv    num_mpas_soil_levels   9       # Number of soil levels
-setenv    num_soilcat            16     #atj: added to be consistent with NSSL
+setenv    num_mpas_vert_levels   55      # Number of vertical levels ( mass levels )
+setenv    num_mpas_soil_levels   4       # Number of soil levels
+#setenv    num_soilcat            16     #atj: added to be consistent with NSSL
 #setenv    z_top_meters           25878.712      # MH commenting out since not an integer
 #setenv    z_top_km               20      # MPAS model top (km)
 
@@ -235,8 +236,8 @@ while ( $DATE <= $end_init )
       if ( $batch_system == LSF ) then
 	 bsub -J "mpas_init_${DATE}" $queue_opts < ${SCRIPT_DIR}/run_mpas_init.csh
       else if ( $batch_system == PBS ) then
-	 set pp_init = `qsub -N "mpas_init_${DATE}" -A "$mpas_account" -q "$mpas_queue" \
-	                     -l walltime=${mpas_init_walltime}:00 -J ${ie}-${last_member} \
+	 set pp_init = `qsub -N "mpas_init_${DATE}" -A "$mpas_account" -q "$mpas_queue" -V \
+	                     -l walltime=${mpas_init_walltime}:00 -J ${ie}-${last_member} -S "/bin/csh" \
 	                     -l "select=${this_num_needed_nodes}:ncpus=${this_num_procs_per_node}:mpiprocs=${this_num_procs_per_node}" \
 			      ${SCRIPT_DIR}/run_mpas_init.csh`
       else if ( $batch_system == SBATCH ) then
