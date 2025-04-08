@@ -9,27 +9,26 @@
 ##BSUB -W 60
 ##BSUB -R "span[ptile=16]"
 
-##PBS -S /bin/csh
-##PBS -N forecast
-##PBS -A NMMM0021
-##PBS -l walltime=10:00
-##PBS -q regular
-##PBS -o forecast.out
-##PBS -j oe 
-##PBS -k oed
-##PBS -l select=6:ncpus=32:mpiprocs=32
-##PBS -m n
-##PBS -M schwartz@ucar.edu
-##PBS -V
+#PBS -S /bin/csh
+#PBS -N forecast
+#PBS -A NMMM0021
+#PBS -l walltime=10:00
+#PBS -q regular
+#PBS -o forecast.out
+#PBS -j oe 
+#PBS -k oed
+#PBS -l select=2:ncpus=12:mpiprocs=12
+#PBS -m n
+#PBS -V
 
-#SBATCH -J mpas
-#SBATCH -o logs/mpas.%j
-#SBATCH -e logs/mpas.%j
-#SBATCH -n 1200
-#SBATCH --exclusive
-#SBATCH --partition=hera
-#SBATCH -t 04:00:00
-#SBATCH -A fv3lam
+##SBATCH -J mpas
+##SBATCH -o logs/mpas.%j
+##SBATCH -e logs/mpas.%j
+##SBATCH -n 1200
+##SBATCH --exclusive
+##SBATCH --partition=hera
+##SBATCH -t 04:00:00
+##SBATCH -A fv3lam
 
 #
 # This script runs MPAS atmosphere
@@ -38,18 +37,28 @@
 # MH Load modules and set envars for MPAS on Hera (updated for Rocky 8):
 module purge
 
-module load cmake/3.28.1
-module load gnu
-module load intel/2023.2.0
-module load impi/2023.2.0
-module load pnetcdf/1.12.3
-module load szip
-module load hdf5parallel/1.10.5
-module load netcdf-hdf5parallel/4.7.0
-setenv PNETCDF /apps/pnetcdf/1.12.3/intel_2023.2.0-impi
-setenv CMAKE_C_COMPILER mpiicc
-setenv CMAKE_CXX_COMPILER mpiicpc
-setenv CMAKE_Fortran_COMPILER mpiifort
+# Derecho intel compile
+module load ncarenv/23.06                                                                                                                                
+module load intel/2023.0.0                                                                                                                               
+module load ncarcompilers/1.0.0                                                                                                                          
+module load cray-mpich/8.1.25                                                                                                                            
+module load craype/2.7.20                                                                                                                                
+module load parallel-netcdf/1.12.3                                                                                                                       
+module load netcdf-mpi/4.9.2                                                                                                                             
+module load mkl
+
+#module load cmake/3.28.1
+#module load gnu
+#module load intel/2023.2.0
+#module load impi/2023.2.0
+#module load pnetcdf/1.12.3
+#module load szip
+#module load hdf5parallel/1.10.5
+#module load netcdf-hdf5parallel/4.7.0
+#setenv PNETCDF /apps/pnetcdf/1.12.3/intel_2023.2.0-impi
+#setenv CMAKE_C_COMPILER mpiicc
+#setenv CMAKE_CXX_COMPILER mpiicpc
+#setenv CMAKE_Fortran_COMPILER mpiifort
 
 #setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/scratch2/BMC/fv3lam/HWT/code/jasper/miniconda3_RL/lib
 
@@ -90,8 +99,7 @@ endif
 # ----------------------------------------------
 # Get the initial conditions
 # ---------------------------------------------- 
-#set mpas_ics = ${MPAS_INIT_OUTPUT_DIR_TOP}/${DATE}/ens_${mem}/init.nc # This is the only input file needed
-set mpas_ics = ${BLEND_OUTPUT_DIR_TOP}/${DATE}/ens_${mem}/init_blend_combined.nc # This is the only input file needed
+set mpas_ics = ${MPAS_INIT_OUTPUT_DIR_TOP}/${DATE}/ens_${mem}/init.nc # This is the only input file needed
 
 set pp = ( $mpas_ics ) # array incase you want to add other files to look for
 foreach p ( $pp )
@@ -128,7 +136,8 @@ ln -sf ${MPAS_CODE_DIR}/*DATA .
 ln -sf ${MPAS_GRID_INFO_DIR}/${graph_info_prefx}* . # graph files
 if ( -e $soundings_file ) ln -sf $soundings_file ./sounding_locations.txt
 
-$NAMELIST_TEMPLATE mpas ${NUM_NODES_MPAS_ATM} ${num_mpas_procs_per_node} # Output is ./namelist.atmosphere #atj modified
+#$NAMELIST_TEMPLATE mpas ${NUM_NODES_MPAS_ATM} ${num_mpas_procs_per_node} # Output is ./namelist.atmosphere #atj modified
+$NAMELIST_TEMPLATE mpas # Output is ./namelist.atmosphere #atj modified
  
 $STREAMS_TEMPLATE mpas # Output is ./streams.atmosphere
 

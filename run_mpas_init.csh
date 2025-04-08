@@ -34,7 +34,7 @@
 #
 module purge
 
-# Derecho
+# Derecho intel compile
 module load ncarenv/23.06                                                                                                                                
 module load intel/2023.0.0                                                                                                                               
 module load ncarcompilers/1.0.0                                                                                                                          

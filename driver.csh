@@ -41,11 +41,11 @@
 
 # Basic system information
 setenv batch_system         PBS # Type of submission system. 
-setenv num_procs_per_node   64  # Number of processors per node on the machine
-setenv run_cmd              "srun" # Command to run MPI executables #"mpirun.lsf"
+setenv num_procs_per_node   12  # Number of processors per node on the machine
+setenv run_cmd              "mpirun" # Command to run MPI executables #"mpirun.lsf"
 
 # Total number of processors to use (not the number of nodes)
-setenv NUM_PROCS_MPAS_ATM   256
+setenv NUM_PROCS_MPAS_ATM   12
 setenv NUM_PROCS_MPAS_INIT  128 # 180
 setenv num_mpas_procs_per_node  12  # Number of processors per node you want to use for MPAS forecasts (not intialization) -- not used for slurm
 
@@ -56,8 +56,8 @@ setenv mpas_queue     "main"   # system queue
 
 # Decide which stages to run (run if true; lowercase):
 setenv RUN_UNGRIB              false  # (true, false )
-setenv RUN_MPAS_INITIALIZE     true
-setenv RUN_MPAS_FORECAST       false
+setenv RUN_MPAS_INITIALIZE     false
+setenv RUN_MPAS_FORECAST       true
 setenv RUN_MPASSIT             false
 setenv RUN_UPP                 false
 
@@ -176,7 +176,7 @@ setenv    num_mpas_soil_levels   4       # Number of soil levels
 ############################################################################
 # MPAS model settings; can also hardcode in $NAMELIST_TEMPLATE if you want
 ############################################################################
-setenv time_step            20.0   # Seconds. Typically should be 4-6*dx; use closer to 4 for cycling DA
+setenv time_step            60.0   # Seconds. Typically should be 4-6*dx; use closer to 4 for cycling DA
 setenv radiation_frequency  30     # Minutes. Typically the same as dx (for dx = 15 km, 15 minutes)
 setenv config_len_disp      3000. # Meters, diffusion length scale, which should be finest resolution in mesh (not needed in MPASv8.0+)
 setenv soundings_file       dum #${SCRIPT_DIR}/sounding_locations.txt   # set to a dummy to disable soundings
@@ -255,9 +255,9 @@ while ( $DATE <= $end_init )
       else if ( $batch_system == PBS ) then
 	 set num_needed_nodes = `echo "$NUM_PROCS_MPAS_ATM / $num_mpas_procs_per_node" | bc`
 	     # Use the next line if you DON'T want a dependency condition based on completion of run_mpas_init.csh
-	#set pp_fcst = `qsub -N "run_mpas_${DATE}" -A "$mpas_account" -J ${ie}-${ENS_SIZE} \
-	 set pp_fcst = `qsub -N "run_mpas_${DATE}" -A "$mpas_account" -J ${ie}-${ENS_SIZE} -W depend=afterok:${pp_init} \
-		     -q "$mpas_queue" \
+	# set pp_fcst = `qsub -N "run_mpas_${DATE}" -A "$mpas_account" -J ${ie}-${ENS_SIZE} -W depend=afterok:${pp_init} \
+	set pp_fcst = `qsub -N "run_mpas_${DATE}" -A "$mpas_account" -J ${ie}-${ENS_SIZE} \
+		     -q "$mpas_queue" -V \
 		     -l "select=${num_needed_nodes}:ncpus=${num_mpas_procs_per_node}:mpiprocs=${num_mpas_procs_per_node}" \
 		     -l walltime=${mpas_fcst_walltime}:00 ${SCRIPT_DIR}/run_mpas.csh`
         else if ( $batch_system == SBATCH ) then

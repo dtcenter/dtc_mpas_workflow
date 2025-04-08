@@ -223,10 +223,10 @@ cat > ./namelist.atmosphere << EOF2
    config_radtsw_interval     = '00:${radiation_frequency}:00'
    config_bucket_update       = 'none' !'1_00:00:00'
    config_microp_re           = .true.
-   config_lsm_scheme          = 'sf_ruc'
+   config_lsm_scheme          = 'sf_noahmp'
    num_soil_layers            = 4
    config_physics_suite       = '${physics_suite}'
-   config_convection_scheme   = 'off'
+   config_convection_scheme   = 'cu_ntiedtke'
 /
 EOF2
 
