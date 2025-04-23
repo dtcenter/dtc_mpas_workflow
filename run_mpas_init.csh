@@ -132,11 +132,11 @@ setenv num_ungrib_soil_levels_lbc  4
 
 ########
 
-set rundir = ${MPAS_INIT_OUTPUT_DIR_TOP}/${DATE}/ens_${mem} # make and go to the run directory
+set rundir = ${MPAS_INIT_DIR}/${DATE}/ens_${mem} # make and go to the run directory
 mkdir -p $rundir
+
 cd $rundir
 rm -f ./*.err # clean-up any error files from last time
-
 ln -sf ${MPAS_INIT_CODE_DIR}/init_atmosphere_model . # link executable
 
 #
@@ -323,6 +323,9 @@ foreach iter ( 3 4 5 )
 
    $STREAMS_TEMPLATE   mpas_init  
    set stream_file = streams.init_atmosphere # Output of above command
+
+   cp $SCRIPT_DIR/namelist.init_atmosphere .
+   cp $SCRIPT_DIR/streams.init_atmosphere .
 
    # -----------------------
    # Run MPAS initialization
