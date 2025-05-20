@@ -100,7 +100,7 @@ while ( $DATE <= $end_time)
    # ----------------------------------
    # Make and go to working directory
    # ----------------------------------
-   set rundir = ${UPP_OUTPUT_DIR_TOP}/$start_init/ens_${mem}/${vhr}
+   set rundir = ${UPP_OUTPUT_DIR}/$start_init/ens_${mem}/${vhr}
    mkdir -p $rundir
    cd $rundir
 
@@ -113,7 +113,7 @@ while ( $DATE <= $end_time)
    ln -sf ${SCRIPT_DIR}/upp_files/ETAMPNEW_DATA nam_micro_lookup.dat
    ln -sf ${SCRIPT_DIR}/upp_files/ETAMPNEW_DATA.expanded_rain hires_micro_lookup.dat
 
-   setenv mpassit_file $MPASSIT_OUTPUT_DIR_TOP/$start_init/ens_${mem}/proc.${date_file_format}.nc
+   setenv mpassit_file $MPASSIT_OUTPUT_DIR/$start_init/ens_${mem}/proc.${date_file_format}.nc
 
    $NAMELIST_TEMPLATE upp
 

@@ -93,13 +93,13 @@ cd $rundir
 # Set boundary condition directory if regional
 # ----------------------------------------------
 if ( $MPAS_REGIONAL == .true. || $MPAS_REGIONAL == true ) then
-   set lbc_dir = ${MPAS_INIT_OUTPUT_DIR_TOP}/${DATE}/ens_${mem}
+   set lbc_dir = ${MPAS_INIT_DIR}/${DATE}/ens_${mem}
 endif
 
 # ----------------------------------------------
 # Get the initial conditions
 # ---------------------------------------------- 
-set mpas_ics = ${MPAS_INIT_OUTPUT_DIR_TOP}/${DATE}/ens_${mem}/init.nc # This is the only input file needed
+set mpas_ics = ${MPAS_INIT_DIR}/${DATE}/ens_${mem}/init.nc # This is the only input file needed
 
 set pp = ( $mpas_ics ) # array incase you want to add other files to look for
 foreach p ( $pp )
@@ -113,7 +113,7 @@ ln -sf $mpas_ics ./init.nc # link the initial conditions to the working director
 
 # If true, we want MPAS to look for a surface stream that reads a file with external sst/xice
 if ( $update_sst == .true. || $update_sst == true ) then
-   set sst_fname = ${MPAS_INIT_OUTPUT_DIR_TOP}/${DATE}/ens_${mem}/sfc_update.nc
+   set sst_fname = ${MPAS_INIT_DIR}/${DATE}/ens_${mem}/sfc_update.nc
    if ( -e $sst_fname ) then
       ln -sf $sst_fname  ./sfc_update.nc
    else
@@ -140,6 +140,9 @@ if ( -e $soundings_file ) ln -sf $soundings_file ./sounding_locations.txt
 $NAMELIST_TEMPLATE mpas # Output is ./namelist.atmosphere #atj modified
  
 $STREAMS_TEMPLATE mpas # Output is ./streams.atmosphere
+
+cp $SCRIPT_DIR/namelist.atmosphere .
+cp $SCRIPT_DIR/streams.atmosphere .
 
 if ( $MPAS_REGIONAL == .true. || $MPAS_REGIONAL == true ) ln -sf ${lbc_dir}/lbc*.nc .
 

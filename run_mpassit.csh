@@ -86,7 +86,7 @@ while ( $DATE <= $end_time)
    # ----------------------------------
    # Make and go to working directory
    # ----------------------------------
-   set rundir = $MPASSIT_OUTPUT_DIR_TOP/$start_init/ens_${mem}/${vhr}
+   set rundir = $MPASSIT_OUTPUT_DIR/$start_init/ens_${mem}/${vhr}
    mkdir -p $rundir
    cd $rundir
 
@@ -96,10 +96,10 @@ while ( $DATE <= $end_time)
    ln -sf ${MPASSIT_CODE_DIR}/bin/mpassit .
    ln -sf ${SCRIPT_DIR}/mpassit_files/* .
 
-   setenv grid_file $MPAS_INIT_OUTPUT_DIR_TOP/$start_init/ens_${mem}/init.nc
-   setenv hist_file $EXP_DIR_TOP/$start_init/ens_${mem}/history.${date_file_format}.nc
-   setenv diag_file $EXP_DIR_TOP/$start_init/ens_${mem}/diag.${date_file_format}.nc
-   setenv output_file $MPASSIT_OUTPUT_DIR_TOP/$start_init/ens_${mem}/proc.${date_file_format}.nc
+   setenv grid_file $MPAS_INIT_DIR/$start_init/ens_${mem}/init.nc
+   setenv hist_file $EXP_DIR/$start_init/ens_${mem}/history.${date_file_format}.nc
+   setenv diag_file $EXP_DIR/$start_init/ens_${mem}/diag.${date_file_format}.nc
+   setenv output_file $MPASSIT_OUTPUT_DIR/$start_init/ens_${mem}/proc.${date_file_format}.nc
 
    $NAMELIST_TEMPLATE mpassit
 
