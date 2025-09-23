@@ -16,7 +16,8 @@
 #PBS -q main
 #PBS -o init.out
 #PBS -j oe 
-#PBS -l select=2:ncpus=64:mpiprocs=64
+#PBS -l select=10:ncpus=128:mpiprocs=128
+##PBS -l job_priority=premium
 #PBS -k eod 
 #PBS -V 
 
@@ -32,7 +33,7 @@
 #
 # This script runs MPAS initialization
 #
-module purge
+module --force purge
 
 # Derecho intel compile
 module load ncarenv/23.06                                                                                                                                
@@ -42,7 +43,9 @@ module load cray-mpich/8.1.25
 module load craype/2.7.20                                                                                                                                
 module load parallel-netcdf/1.12.3                                                                                                                       
 module load netcdf-mpi/4.9.2                                                                                                                             
-module load mkl
+
+module list
+#module load mkl
 
 # MH Load modules and set envars for MPAS on Hera (updated for Rocky 8):
 #module load cmake/3.28.1
@@ -88,13 +91,17 @@ set sdate_lbc = `echo "$START_DATE_LBC" | cut -c 1-13`
 #setenv z_top_meters `expr $z_top_km \* 1000` # needed for namelist
 setenv z_top_meters 
 
-#atj added this block since difference source of LBC data than IC data:
+##atj added this block since difference source of LBC data than IC data:
 if ( $COLD_START_BOUNDARY_CONDITIONS_MODEL_CTL == GFS || $COLD_START_BOUNDARY_CONDITIONS_MODEL_CTL == GFS_new ) then # Change if GFS after May 2016 to 32 levels
    setenv num_ungrib_vertical_levels_lbc  51 #27
 else if ( $COLD_START_BOUNDARY_CONDITIONS_MODEL_CTL == GFS_FV3 ) then # GFS FV3
    setenv num_ungrib_vertical_levels_lbc  50 # Could be as many as 50
 else if ( $COLD_START_BOUNDARY_CONDITIONS_MODEL_CTL == GEFS ) then
    setenv num_ungrib_vertical_levels_lbc 32 # 27
+else if ( $COLD_START_BOUNDARY_CONDITIONS_MODEL_CTL == HRRR.pressure ) then
+   setenv num_ungrib_vertical_levels_lbc 51 # 27
+else if ( $COLD_START_BOUNDARY_CONDITIONS_MODEL_CTL == raphrrr ) then
+   setenv num_ungrib_vertical_levels_lbc 51 # 27
 else
    echo "$COLD_START_BOUNDARY_CONDITIONS_MODEL_CTL not valid.  Specify a valid one. exit"
    exit
@@ -106,6 +113,10 @@ else if ( $COLD_START_BOUNDARY_CONDITIONS_MODEL_PERT == GFS_FV3 ) then # GFS FV3
    setenv num_ungrib_vertical_levels_lbcp  50 # Could be as many as 50
 else if ( $COLD_START_BOUNDARY_CONDITIONS_MODEL_PERT == GEFS ) then
    setenv num_ungrib_vertical_levels_lbcp 32 # 27
+else if ( $COLD_START_BOUNDARY_CONDITIONS_MODEL_PERT == HRRR.pressure ) then
+   setenv num_ungrib_vertical_levels_lbcp 51 # 27
+else if ( $COLD_START_BOUNDARY_CONDITIONS_MODEL_PERT == raphrrr ) then
+   setenv num_ungrib_vertical_levels_lbcp 51 # 27
 else
    echo "$COLD_START_BOUNDARY_CONDITIONS_MODEL_PERT not valid.  Specify a valid one. exit"
    exit
@@ -120,16 +131,18 @@ else if ( $COLD_START_INITIAL_CONDITIONS_MODEL == GEFS ) then
 else if ( $COLD_START_INITIAL_CONDITIONS_MODEL == RRFS ) then
    setenv num_ungrib_vertical_levels  41
 else if ( $COLD_START_INITIAL_CONDITIONS_MODEL == HRRR.pressure ) then
-   setenv num_ungrib_vertical_levels  46
+   setenv num_ungrib_vertical_levels  51
+else if ( $COLD_START_INITIAL_CONDITIONS_MODEL == raphrrr ) then
+   setenv num_ungrib_vertical_levels  51
 else
    echo "$COLD_START_INITIAL_CONDITIONS_MODEL not valid.  Specify a valid one. exit"
    exit
 endif
 
 # MH changes for HRRR and GFS
-setenv num_ungrib_soil_levels  4
-setenv num_ungrib_soil_levels_lbc  4
-
+setenv num_ungrib_soil_levels  9
+setenv num_ungrib_soil_levels_lbc  9
+setenv blend_bdy_terrain    .false.
 ########
 
 set rundir = ${MPAS_INIT_DIR}/${DATE}/ens_${mem} # make and go to the run directory
@@ -148,13 +161,15 @@ ln -sf ${MPAS_INIT_CODE_DIR}/init_atmosphere_model . # link executable
 #
 # Changed to 2 3 4 5 --> already have static file
 #foreach iter ( 1 2 3 4 5 )
-foreach iter ( 3 4 5 )
+#foreach iter ( 1 )
+foreach iter (  3 4 5 )
 
    if ( $iter == 1 ) then
 
       if ( -e $mpas_static_data_file ) continue  # Only need to do this once per mesh
 
       setenv case_number   7
+      setenv config_start_time   $START_DATE_MPAS
       setenv config_stop_time   $START_DATE_MPAS
 
       setenv config_static_interp   .true.
@@ -163,10 +178,13 @@ foreach iter ( 3 4 5 )
       setenv config_input_sst       .false.
       setenv config_frac_seaice     .false.
 
+      setenv blend_bdy_terrain      .false.
+
       setenv config_extrap_airtemp  linear
 
       setenv config_input_name    $grid_file_netcdf       # Full path, from driver.csh # MH needed ro change to lower case
       setenv config_output_name   `basename $mpas_static_data_file` # Full path, from driver.csh
+      ln -sf $MPAS_GRID_INFO_DIR/${graph_info_prefx}* .
 
       set suffix = "static_data"
       
@@ -184,6 +202,7 @@ foreach iter ( 3 4 5 )
       setenv config_met_interp      .false.
       setenv config_input_sst       .true.
       setenv config_frac_seaice     .true.
+      setenv blend_bdy_terrain      .false.
 
       setenv config_extrap_airtemp  linear
 
@@ -208,6 +227,8 @@ foreach iter ( 3 4 5 )
       setenv config_met_interp      .true.
       setenv config_input_sst       .false.
       setenv config_frac_seaice     .true.
+
+      setenv blend_bdy_terrain      .false.
 
       setenv config_extrap_airtemp  linear
 
@@ -237,7 +258,9 @@ foreach iter ( 3 4 5 )
 	 setenv config_vertical_grid   .false.
 	 setenv config_met_interp      .false.
 	 setenv config_input_sst       .false.
-	 setenv config_frac_seaice     .false.
+	 setenv config_frac_seaice     .true.
+
+         setenv blend_bdy_terrain      .false.
 
          setenv config_extrap_airtemp  linear
 
@@ -280,6 +303,8 @@ foreach iter ( 3 4 5 )
          setenv config_met_interp      .false.
          setenv config_input_sst       .false.
          setenv config_frac_seaice     .false.
+
+         setenv blend_bdy_terrain      .false.
 
          setenv config_extrap_airtemp  linear
 
@@ -330,7 +355,8 @@ foreach iter ( 3 4 5 )
    # -----------------------
    # Run MPAS initialization
    # -----------------------
-   mpirun -np 12 ./init_atmosphere_model
+
+   mpirun  ./init_atmosphere_model
 
    # Error check
    if ( $status != 0 ) then
