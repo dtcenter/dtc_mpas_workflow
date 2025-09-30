@@ -18,8 +18,8 @@ if ( ! $?config_frac_seaice   )  set config_frac_seaice   = .false.
 if ( ! $?config_input_name    )  set config_input_name    = 'dum'
 if ( ! $?config_output_name   )  set config_output_name   = 'dum'
 if ( ! $?update_sst_interval )   set update_sst_interval = none
-if ( ! $?this_ungrib_vertical_levels ) set this_ungrib_vertical_levels = 51
-if ( ! $?this_ungrib_soil_levels )     set this_ungrib_soil_levels = 9
+if ( ! $?this_ungrib_vertical_levels ) set this_ungrib_vertical_levels = $num_mpas_vert_levels
+if ( ! $?this_ungrib_soil_levels )     set this_ungrib_soil_levels = $num_mpas_soil_levels
 
 #####
 
@@ -37,6 +37,7 @@ if ( ! $?blend_bdy_terrain ) then
     set config_blend_bdy_terrain   = .false.
 else
     set config_blend_bdy_terrain = $blend_bdy_terrain
+endif
 
 if ( $MPAS_REGIONAL == true || $MPAS_REGIONAL == .true. ) then
    set config_fg_interval = `expr $LBC_FREQ \* 3600`
