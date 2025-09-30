@@ -133,7 +133,6 @@ while ( $DATE <= $end_time)
    ln -sf ${UPP_CODE_DIR}/../crtm/fix/EmisCoeff/MW_Water/Big_Endian/*Coeff.bin .
 
    setenv mpassit_file $MPASSIT_OUTPUT_DIR/$start_init/ens_${mem}/proc.${date_file_format}.nc
-   setenv blend_bdy_terrain .false.
 
    $NAMELIST_TEMPLATE upp
 

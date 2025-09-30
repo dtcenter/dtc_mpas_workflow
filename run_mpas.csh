@@ -138,8 +138,6 @@ ln -sf ${MPAS_CODE_DIR}/*DATA .
 ln -sf ${MPAS_GRID_INFO_DIR}/${graph_info_prefx}* . # graph files
 if ( -e $soundings_file ) ln -sf $soundings_file ./sounding_locations.txt
 
-setenv blend_bdy_terrain    .false.  
-
 #$NAMELIST_TEMPLATE mpas ${NUM_NODES_MPAS_ATM} ${num_mpas_procs_per_node} # Output is ./namelist.atmosphere #atj modified
 $NAMELIST_TEMPLATE mpas # Output is ./namelist.atmosphere #atj modified
  

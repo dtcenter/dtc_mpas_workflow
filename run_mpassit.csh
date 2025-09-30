@@ -136,8 +136,6 @@ while ( $DATE <= $end_time)
    setenv diag_file $EXP_DIR/$start_init/ens_${mem}/diag.${date_file_format}.nc
    setenv output_file $MPASSIT_OUTPUT_DIR/$start_init/ens_${mem}/proc.${date_file_format}.nc
 
-    setenv blend_bdy_terrain    .false.  
-
    $NAMELIST_TEMPLATE mpassit
 
    #----------------------------------------------------

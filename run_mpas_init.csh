@@ -142,7 +142,6 @@ endif
 # MH changes for HRRR and GFS
 setenv num_ungrib_soil_levels  9
 setenv num_ungrib_soil_levels_lbc  9
-setenv blend_bdy_terrain    .false.
 ########
 
 set rundir = ${MPAS_INIT_DIR}/${DATE}/ens_${mem} # make and go to the run directory
@@ -177,7 +176,6 @@ foreach iter (  3 4 5 )
       setenv config_met_interp      .false.
       setenv config_input_sst       .false.
       setenv config_frac_seaice     .false.
-
       setenv blend_bdy_terrain      .false.
 
       setenv config_extrap_airtemp  linear
