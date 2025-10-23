@@ -25,7 +25,8 @@
 #PBS -o ./output_file
 #PBS -j oe 
 #PBS -k eod 
-#PBS -l select=1:ncpus=1:mpiprocs=1
+#PBS -l select=1:ncpus=1:mpiprocs=1:mem=30gb
+##PBS -l job_priority=premium
 #PBS -m n    
 #PBS -V 
 #
@@ -40,11 +41,11 @@
 
 # Basic system information
 setenv batch_system         PBS # Type of submission system. 
-setenv num_procs_per_node   12  # Number of processors per node on the machine
+setenv num_procs_per_node   128  # Number of processors per node on the machine
 setenv run_cmd              "mpirun" # Command to run MPI executables #"mpirun.lsf"
 
 # Total number of processors to use (not the number of nodes)
-setenv NUM_PROCS_MPAS_ATM   12
+setenv NUM_PROCS_MPAS_ATM   128
 setenv NUM_PROCS_MPAS_INIT  128 # 180
 setenv num_mpas_procs_per_node  12  # Number of processors per node you want to use for MPAS forecasts (not intialization) -- not used for slurm
 
@@ -55,8 +56,8 @@ setenv mpas_queue     "main"   # system queue
 
 # Decide which stages to run (run if true, otherwise, false; lowercase to be used):
 setenv RUN_UNGRIB              false  # (true, false )
-setenv RUN_MPAS_INITIALIZE     false
-setenv RUN_MPAS_FORECAST       true
+setenv RUN_MPAS_INITIALIZE     true
+setenv RUN_MPAS_FORECAST       false
 setenv RUN_MPASSIT             false
 setenv RUN_UPP                 false
 
@@ -64,26 +65,28 @@ setenv RUN_UPP                 false
 # Directories pointing to source code and required datasets #
 #######################################
 # Path and directory containing all code and scripts
-setenv   HOMEDIR              /glade/campaign/ral/jntp/weiweili/MMM_model/workflow/dev_mwf
+setenv   HOMEDIR              /glade/work/wmayfield/dtc_ncar_mpas
 
 # Path to all scripts (e.g., *.csh) under dtc_mpas_workflow
 setenv   SCRIPT_DIR           ${HOMEDIR}/dtc_mpas_workflow
 
 # Path to MPAS model code - could be different from MPAS_INIT_CODE_DIR (MPAS initialization code; fetch the code: git clone https://github.com/MPAS-Dev/MPAS-Model.git)
 #setenv   MPAS_CODE_DIR        ${HOMEDIR}/MPAS-Model
-setenv    MPAS_CODE_DIR       /glade/campaign/ral/jntp/mayfield/mpas_stoch/merge/MPAS-Model_spptint
+#setenv    MPAS_CODE_DIR       /glade/campaign/ral/jntp/mayfield/mpas_stoch/merge/MPAS-Model_spptint
+#setenv    MPAS_CODE_DIR       /glade/work/wmayfield/dtc_ncar_mpas/MPAS-Model_8.3.1
+setenv    MPAS_CODE_DIR       /glade/work/wmayfield/dtc_ncar_mpas/MPAS-Model_ufs-community_20250922
 
 # Path to MPAS-A initialization source code 
 setenv   MPAS_INIT_CODE_DIR   $MPAS_CODE_DIR
 
 # Path to MPASSIT code
 # Optional (one need to have it built on Derecho)
-setenv   MPASSIT_CODE_DIR     /scratch2/BMC/fv3lam/HWT/code/MPASSIT
+setenv  MPASSIT_CODE_DIR        /glade/work/wmayfield/dtc_ncar_mpas/MPASSIT
 
 # Path to UPP code
 # Optional (one needs to have it built on Derecho)
-setenv   UPP_CODE_DIR        /scratch2/BMC/fv3lam/HWT/code/UPP_NSSL
-setenv   UPP_CODE_DIR        /scratch2/BMC/fv3lam/ajohns/mpas_pp
+#setenv UPP_CODE_DIR     /glade/derecho/scratch/kavulich/UFS/workdir/test_develop/2025-07-26/intel/ufs-srweather-app/exec/
+setenv UPP_CODE_DIR    /glade/work/wmayfield/dtc_ncar_mpas/UPP/exec 
 
 # Path to WPS, where ungrib.exe is located for MPAS initialization
 # Not platform agnostic. Hera has it built somewhere, which is used in mpas_app.
@@ -142,10 +145,10 @@ setenv LBC_FREQ 6
 
 #This is the model providing initial conditions for MPAS. Mostly needed to tell the MPAS initialization
 #  how many vertical levels to expect in the GRIB files.  See run_mpas_init.csh
-setenv  COLD_START_INITIAL_CONDITIONS_MODEL GEFS # (GFS, GEFS, RRFS, HRRR.pressure)
+#setenv  COLD_START_INITIAL_CONDITIONS_MODEL GEFS # (GFS, GEFS, RRFS, HRRR.pressure)
+setenv  COLD_START_INITIAL_CONDITIONS_MODEL GFS # (GFS, GEFS, RRFS, HRRR.pressure)
 setenv  COLD_START_BOUNDARY_CONDITIONS_MODEL_CTL GFS #atj: new variable                                                                                  
-setenv  COLD_START_BOUNDARY_CONDITIONS_MODEL_PERT GEFS #atj: new variable 
-#setenv  COLD_START_BOUNDARY_CONDITIONS_MODEL GFS
+setenv  COLD_START_BOUNDARY_CONDITIONS_MODEL_PERT GFS #atj: new variable 
 
 # Ensemble size for the forecasts (note: all ensemble members are run all at once)
 # ENS_SIZE = 1 to run deterministic forecast
@@ -164,7 +167,8 @@ setenv      STREAMS_TEMPLATE         ${SCRIPT_DIR}/streams_template.csh
 
 # Directory to IC and LBC data (must be in GRIB format), which will be ingested into ungrib.exe to generate intermediate IC and LBC files (sub-directories by ensemble member and initialization time)
 # Need to manually set up ens_* and lbc_*0
-setenv      GRIB_INPUT_DIR_MODEL      /glade/campaign/ral/jntp/mayfield/dtc_ncar_mpas/ic_bc_data
+#setenv      GRIB_INPUT_DIR_MODEL      /glade/campaign/ral/jntp/mayfield/dtc_ncar_mpas/ic_bc_data
+setenv      GRIB_INPUT_DIR_MODEL      /glade/campaign/ral/jntp/mayfield/dtc_ncar_mpas/ic_bc_data/hrrr
 
 # As GRIB_INPUT_DIR_MODEL but for SST data
 setenv      GRIB_INPUT_DIR_SST       $GRIB_INPUT_DIR_MODEL
@@ -196,7 +200,7 @@ setenv   EXP_DIR                      ${HOMEDIR}/${EXPT}/${MESH}/mpas_atm
 # Directory to save all post-processed data produced by MPASSIT
 setenv   MPASSIT_OUTPUT_DIR           ${HOMEDIR}/${EXPT}/${MESH}/mpassit
 # Directory to save all post-processed data produced by UPP
-setenv   UPP_OUTPUT_DIR_TOP           ${HOMEDIR}/${EXPT}/${MESH}/upp
+setenv   UPP_OUTPUT_DIR           ${HOMEDIR}/${EXPT}/${MESH}/upp
 
 
 ############################
@@ -209,7 +213,8 @@ setenv   UPP_OUTPUT_DIR_TOP           ${HOMEDIR}/${EXPT}/${MESH}/upp
 
 # Directory containing MPAS mesh, grid and static files
 # TODO: Archive all the DTC generated mesh to a generic place under JNT?
-setenv    MPAS_GRID_INFO_DIR      /glade/campaign/ral/jntp/mayfield/dtc_ncar_mpas/meshes/ # Directory containing MPAS grid files, must be there
+#setenv    MPAS_GRID_INFO_DIR      /glade/campaign/ral/jntp/mayfield/dtc_ncar_mpas/meshes/ # Directory containing MPAS grid files, must be there
+setenv    MPAS_GRID_INFO_DIR      /glade/work/wmayfield/dtc_ncar_mpas/meshes # Directory containing MPAS grid files, must be there
 
 # Specify which "mesh decomposition file" (under $MPAS_GRID_INFO_DIR) to be used, usually named as *graph.info.part.* (in ASCII format), the number after this prefixdenotes an appropriate number of partitions that are equal to the number of MPI tasks that will be used
 setenv    graph_info_prefx        conus_15km.graph.info.part.
@@ -343,7 +348,19 @@ while ( $DATE <= $END_INIT )
       if ( $batch_system == LSF ) then
 	 echo "MPASSIT functionality has not been implemented on LSF batch systems."
       else if ( $batch_system == PBS ) then
-	 echo "MPASSIT functionality has not been implemented on PBS batch systems."
+	 set num_needed_nodes = `echo "$NUM_PROCS_MPAS_ATM / $num_mpas_procs_per_node" | bc`
+	     # Use the next line if you DON'T want a dependency condition based on completion of run_mpas_init.csh
+	# set pp_fcst = `qsub -N "run_mpas_${DATE}" -A "$mpas_account" -J ${IENS}-${ENS_SIZE} -W depend=afterok:${pp_init} \
+#   set pp_fcst = `qsub -N "run_mpas_${DATE}" -A "$mpas_account" -J ${IENS}-${ENS_SIZE} \
+         set ii = `expr $IENS + 1`
+         set last_member = "${ii}:2"
+         set pp_fcst = `qsub -N "run_mpassit_${DATE}" -A "$mpas_account" -J ${IENS}-${last_member} \
+		     -q "$mpas_queue" -V \
+		     -l "select=1:ncpus=128:mpiprocs=128:mem=209GB" \
+		     -l walltime=${mpas_fcst_walltime}:00 ${SCRIPT_DIR}/run_mpassit.csh`
+		     #-l "select=${num_needed_nodes}:ncpus=${num_mpas_procs_per_node}:mpiprocs=${num_mpas_procs_per_node}" \
+		     #-l walltime=${mpas_fcst_walltime}:00 ${SCRIPT_DIR}/run_mpassit.csh`
+
       else if ( $batch_system == SBATCH ) then
         foreach mem ( `seq $IENS 1 $ENS_SIZE` )
           sbatch ${SCRIPT_DIR}/run_mpassit.csh $mem
@@ -355,7 +372,18 @@ while ( $DATE <= $END_INIT )
       if ( $batch_system == LSF ) then
          echo "MPASSIT functionality has not been implemented on LSF batch systems."
       else if ( $batch_system == PBS ) then
-         echo "MPASSIT functionality has not been implemented on PBS batch systems."
+	 set num_needed_nodes = `echo "$NUM_PROCS_MPAS_ATM / $num_mpas_procs_per_node" | bc`
+	     # Use the next line if you DON'T want a dependency condition based on completion of run_mpas_init.csh
+	# set pp_fcst = `qsub -N "run_mpas_${DATE}" -A "$mpas_account" -J ${IENS}-${ENS_SIZE} -W depend=afterok:${pp_init} \
+#   set pp_fcst = `qsub -N "run_mpas_${DATE}" -A "$mpas_account" -J ${IENS}-${ENS_SIZE} \
+         set ii = `expr $IENS + 1`
+         set last_member = "${ii}:2"
+         set pp_fcst = `qsub -N "run_upp_${DATE}" -A "$mpas_account" -J ${IENS}-${last_member} \
+		     -q "$mpas_queue" -V \
+		     -l "select=1:ncpus=1:mpiprocs=1" \
+		     -l walltime=120:00 ${SCRIPT_DIR}/run_upp.csh`
+		     #-l "select=${num_needed_nodes}:ncpus=${num_mpas_procs_per_node}:mpiprocs=${num_mpas_procs_per_node}" \
+		     #-l walltime=${mpas_fcst_walltime}:00 ${SCRIPT_DIR}/run_mpassit.csh`
       else if ( $batch_system == SBATCH ) then
         foreach mem ( `seq $IENS 1 $ENS_SIZE` )
           sbatch ${SCRIPT_DIR}/run_upp.csh $mem

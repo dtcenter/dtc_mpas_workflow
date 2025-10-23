@@ -11,13 +11,14 @@
 
 #PBS -S /bin/csh
 #PBS -N forecast
-#PBS -A NMMM0021
-#PBS -l walltime=10:00
+#PBS -A P48503002
+#PBS -l walltime=240:00
 #PBS -q regular
 #PBS -o forecast.out
 #PBS -j oe 
 #PBS -k oed
-#PBS -l select=2:ncpus=12:mpiprocs=12
+#PBS -l select=1:ncpus=128:mpiprocs=128
+#PBS -l job_priority=premium
 #PBS -m n
 #PBS -V
 
@@ -45,7 +46,8 @@ module load cray-mpich/8.1.25
 module load craype/2.7.20                                                                                                                                
 module load parallel-netcdf/1.12.3                                                                                                                       
 module load netcdf-mpi/4.9.2                                                                                                                             
-module load mkl
+module list
+#module load mkl
 
 #module load cmake/3.28.1
 #module load gnu
