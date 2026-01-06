@@ -161,10 +161,10 @@ while ( $DATE <= $end_time)
    #/scratch1/BMC/dtc/miniconda/miniconda3/envs/metplus_v5.1_py3.10/bin/python changedx.py ${output_file} 
 
 
-   module use /glade/work/dtcrt/METplus/derecho/components/METplus/installations/modulefiles
-   module load metplus/5.1.0
-   echo "python changedx.py ${output_file}"
-   /glade/work/dtcrt/METplus/derecho/miniconda/miniconda3/envs/metplus_v5.1_py3.10/bin/python changedx.py ${output_file} 
+   #module use /glade/work/dtcrt/METplus/derecho/components/METplus/installations/modulefiles
+   #module load metplus/5.1.0
+   #echo "python changedx.py ${output_file}"
+   #/glade/work/dtcrt/METplus/derecho/miniconda/miniconda3/envs/metplus_v5.1_py3.10/bin/python changedx.py ${output_file} 
 
    # Done with this foreecast hour; go to next one
    set DATE = `$TOOL_DIR/da_advance_time.exe ${DATE} $diag_output_interval`
